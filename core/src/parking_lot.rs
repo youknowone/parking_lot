@@ -244,7 +244,7 @@ fn create_hashtable() -> &'static HashTable {
         Ordering::Acquire,
     ) {
         Ok(_) => {
-            #[cfg(all(unix, feature = "fork"))]
+            #[cfg(unix)]
             register_atfork();
             new_table
         }
@@ -1713,16 +1713,16 @@ mod tests {
 /// This function resets [`HASHTABLE`] to null and [`NUM_THREADS`] to 0, so the
 /// next `park`/`unpark` call will lazily allocate a fresh, clean hash table.
 ///
-/// When the `fork` feature is enabled, a `pthread_atfork(3)` handler that
-/// calls this function is automatically registered when the hash table is
-/// first created, so most users do not need to call this manually.
+/// On Unix, a `pthread_atfork(3)` handler that calls this function is
+/// automatically registered when the hash table is first created, so most
+/// users do not need to call this manually.
 #[cfg(unix)]
 pub fn reinit_after_fork() {
     HASHTABLE.store(ptr::null_mut(), Ordering::Relaxed);
     NUM_THREADS.store(0, Ordering::Relaxed);
 }
 
-#[cfg(all(unix, feature = "fork"))]
+#[cfg(unix)]
 fn register_atfork() {
     unsafe extern "C" fn child_after_fork() {
         reinit_after_fork();

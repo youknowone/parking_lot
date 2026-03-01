@@ -4,7 +4,7 @@
 //! ThreadData pointers from dead threads. Without the fork-safety fix, park()
 //! dereferences these and segfaults.
 
-#![cfg(all(unix, feature = "fork"))]
+#![cfg(unix)]
 
 use parking_lot_core::{park, unpark_one, DEFAULT_PARK_TOKEN, DEFAULT_UNPARK_TOKEN};
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
